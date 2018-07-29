@@ -1,9 +1,23 @@
 # Installation d'un serveur web Apache2/PHP7.1
 
-Installing an Apache2/PHP7.1/MySQL web server on a raspberrypi.
+Installing Apache2/PHP7.1/MySQL for a development web server on a raspberrypi.
 
 Script tested on linux distribution Raspbian Stretch Lite.
 [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/)
+
+The script installs the following components:
+
+* Apache2
+* MySQL
+* PHP7.1
+* xdebug
+* The zsh shell with oh-my-zsh framework
+* Composer
+* PHP-CS-FIXER
+* PHP code sniffer
+* PHP md
+* PHP Copy/Paste Detector
+* samba
 
 ## Requirements
 
@@ -21,7 +35,7 @@ You can also download the script source directly from the Git clone:
 
 ### Run the script
 
-    sudo sh install.sh
+    bash raspbian---installation-serveur/install.sh
 
 ## Issues
 

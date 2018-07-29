@@ -1,6 +1,29 @@
 #!/bin/bash
 # Version 0.1
 
+MY_HOSTNAME="test"
+
+# Use colors, but only if connected to a terminal, and that terminal
+# supports them.
+if which tput >/dev/null 2>&1; then
+    ncolors=$(tput colors)
+fi
+if [ -t 1 ] && [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+    RED="$(tput setaf 1)"
+    GREEN="$(tput setaf 2)"
+    YELLOW="$(tput setaf 3)"
+    BLUE="$(tput setaf 4)"
+    BOLD="$(tput bold)"
+    NORMAL="$(tput sgr0)"
+else
+    RED=""
+    GREEN=""
+    YELLOW=""
+    BLUE=""
+    BOLD=""
+    NORMAL=""
+fi
+
 printf "${GREEN}"
 echo ' _       __     __                        '
 echo '| |     / /__  / /________  ____ ___  ___ '
@@ -8,39 +31,43 @@ echo '| | /| / / _ \/ / ___/ __ \/ __ `__ \/ _ \'
 echo '| |/ |/ /  __/ / /__/ /_/ / / / / / /  __/'
 echo '|__/|__/\___/_/\___/\____/_/ /_/ /_/\___/ '
 echo ''
+echo 'Installing Apache2/PHP7.1/MySQL for a development web server on a raspberrypi.'
+echo ''
 echo ''
 printf "${NORMAL}"
 
 #
-# Mise à jour du serveur
+# Update the server
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#         Mise à jour globale !           #'
+echo '#             Global update!              #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
-apt-get -y update && apt-get -y upgrade
+sudo apt-get -y update
+sudo apt-get -y upgrade
 
 # Liste des paquets pouvant-être mis à jour
 # apt list --upgradable
 
 #
-# Installation des dépendances
+# Installation dependencies
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#              Installation               #'
-echo '#            des dependances              #'
+echo '#        dependencies installation        #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
-apt-get install -y build-essential
-apt-get install -y apt-transport-https
-apt-get install -y zip
-apt-get install -y python-pip
+sudo apt-get install -y build-essential
+sudo apt-get install -y apt-transport-https
+sudo apt-get install -y zip
+sudo apt-get install -y python-pip
 git clone https://github.com/b-ryan/powerline-shell
 cd powerline-shell
 python setup.py install
@@ -49,56 +76,61 @@ python setup.py install
 # Installation apache2
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#         Installation apache2            #'
+echo '#         apache2 installation            #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
-apt-get install -y apache2
+sudo apt-get install -y apache2
 # Ajout du module rewrite
 a2enmod rewrite
 service apache2 restart
-
-# Configuration date
-sed -i "s/;date.timezone =/date.timezone = Europe\/Paris/g" /etc/php/7.1/apache2/php.ini
 
 #
 # Installation MySQL
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#           Installation MySQL            #'
+echo '#           MySQL installation            #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
-apt-get install -y mysql-server
+sudo apt-get install -y mysql-server
 
 #
 # Installation php7.1
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#           Installation php7.1           #'
+echo '#           php7.1 installation           #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
 echo "deb http://mirrordirector.raspbian.org/raspbian/ buster main contrib non-free rpi" >> /etc/apt/sources.list
-apt-get update -y
+sudo apt-get update -y
 # apt-cache pkgnames | grep php7.1
-apt-get install -y php7.1 php7.1-cli php7.1-common libapache2-mod-php7.1 php7.1-mysql php7.1-fpm php7.1-curl php7.1-gd php7.1-bz2 php7.1-mcrypt php7.1-json php7.1-tidy php7.1-mbstring php7.1-xml php7.1-dev php7.1-soap php-redis php-memcached php7.1-zip php7.1-apcu php7.1-sqlite3
+sudo apt-get install -y php7.1 php7.1-cli php7.1-common libapache2-mod-php7.1 php7.1-mysql php7.1-fpm php7.1-curl php7.1-gd php7.1-bz2 php7.1-mcrypt php7.1-json php7.1-tidy php7.1-mbstring php7.1-xml php7.1-dev php7.1-soap php-redis php-memcached php7.1-zip php7.1-apcu php7.1-sqlite3
 a2enmod proxy_fcgi setenvif
 a2enconf php7.1-fpm
+
+# Configuration date
+sed -i "s/;date.timezone =/date.timezone = Europe\/Paris/g" /etc/php/7.1/apache2/php.ini
+
 systemctl reload apache2
 
 #
 # Installation de xdebug
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#           Installation xdebug           #'
+echo '#           xdebug installation           #'
 echo '###########################################'
 echo ''
 echo ''
@@ -106,7 +138,7 @@ printf "${NORMAL}"
 
 pecl install xdebug
 
-# Configuration de Xdebug
+# setup Xdebug
 echo "
 xdebug.show_error_trace = 1
 " >> /etc/php/7.1/mods-available/xdebug.ini
@@ -135,75 +167,88 @@ service apache2 restart
 # Shell custom
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#          Installation de zsh            #'
+echo '#            zsh installation             #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
-apt-get install -y fonts-powerline
-apt-get install -y zsh
-sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+sudo apt-get install -y fonts-powerline
+sudo apt-get install -y zsh
+git clone https://github.com/robbyrussell/oh-my-zsh.git  ~/.oh-my-zsh
+cp ~/.zshrc ~/.zshrc.orig
+cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+chsh -s /bin/zsh
+sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' ~/.zshrc
 
 #
 # Composer
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#        Installation de Composer         #'
+echo '#          Composer installation          #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
-curl -sS https://getcomposer.org/installer | php
-mv composer.phar /usr/local/bin/composer.phar
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php -r "if (hash_file('SHA384', 'composer-setup.php') === '544e09ee996cdf60ece3804abc52599c22b1f40f4323403c44d44fdfdd586475ca9813a858088ffbc1f233e9b180f061') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+sudo php composer-setup.php --install-dir=/usr/local/bin
+php -r "unlink('composer-setup.php');"
 echo "
-alias composer='/usr/local/bin/composer.phar'" >> ~/.bashrc
+alias composer='/usr/local/bin/composer.phar'" >> ~/.zshrc
 . ~/.zshrc
 
 #
 # PHP-CS-FIXER
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#      Installation de PHP-CS-FIXER       #'
+echo '#         PHP-CS-FIXER installation       #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
 composer global require friendsofphp/php-cs-fixer
+echo "
+alias php-cs-fixer='$HOME/.config/composer/vendor/bin/php-cs-fixer'" >> ~/.zshrc
+. ~/.zshrc
 
 #
 # PHP code sniffer
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#    Installation de PHP code sniffer     #'
+echo '#      PHP code sniffer installation      #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
 composer global require "squizlabs/php_codesniffer=*"
 echo "
-alias php-cs-fixer='/home/zohac/.config/composer/vendor/bin/php-cs-fixer'
-alias phpcs='/home/zohac/.config/composer/vendor/bin/phpcs'
-alias phpcbf='/home/zohac/.config/composer/vendor/bin/phpcbf'
-export PATH='$PATH:$HOME/.config/composer/vendor/bin'" >> ~/.zshrc
+alias phpcs='$HOME/.config/composer/vendor/bin/phpcs'
+alias phpcbf='$HOME/.config/composer/vendor/bin/phpcbf'
+export PATH='$HOME/.config/composer/vendor/bin'" >> ~/.zshrc
 . ~/.zshrc
 
 #
-# PHP md
+# PHP Mess Detector
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#         Installation de PHP md          #'
+echo '#     PHP Mess Detector installation      #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
 wget -c http://static.phpmd.org/php/latest/phpmd.phar
-mv phpmd.phar /usr/local/bin/phpmd.phar
-chmod u+x /usr/local/bin/phpmd.phar
+chmod u+x phpmd.phar
+sudo mv phpmd.phar /usr/local/bin/phpmd.phar
 echo "
 alias phpmd='/usr/local/bin/phpmd.phar'" >> ~/.zshrc
 . ~/.zshrc
@@ -212,19 +257,21 @@ alias phpmd='/usr/local/bin/phpmd.phar'" >> ~/.zshrc
 # PHP Copy/Paste Detector (PHPCPD)
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#             Installation de             #'
 echo '#         PHP Copy/Paste Detector         #'
+echo '#               installation              #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
 wget https://phar.phpunit.de/phpcpd.phar
 chmod +x phpcpd.phar
-mv phpcpd.phar /usr/local/bin/phpcpd
-echo "alias phpcpd='/usr/local/bin/phpcpd'" >> ~/.zshrc
+sudo mv phpcpd.phar /usr/local/bin/phpcpd
+echo "
+alias phpcpd='/usr/local/bin/phpcpd'" >> ~/.zshrc
 
-# exemple commande:
+# example of use:
 #
 # php-cs-fixer fix src --rules=@Symfony,-@PSR1,-@PSR2
 # phpcs
@@ -232,17 +279,18 @@ echo "alias phpcpd='/usr/local/bin/phpcpd'" >> ~/.zshrc
 # phpmd src html codesize,unusedcode,naming --reportfile phpmd.html --suffixes php,phtml
 
 #
-# Installation de postfix, envoie seulement de mail
+# Installation postfix
 #
 #printf "${GREEN}"
+#echo ''
 #echo '###########################################'
 #echo '#           Installation postfix          #'
 #echo '###########################################'
 #echo ''
 #echo ''
 #printf "${NORMAL}"
-#apt-get -y install postfix
-#apt-get install -y mailutils
+#sudo apt-get -y install postfix
+#sudo apt-get install -y mailutils
 # Site internet
 # home-ubuntu-server
 # /etc/postfix/main.cf
@@ -250,23 +298,25 @@ echo "alias phpcpd='/usr/local/bin/phpcpd'" >> ~/.zshrc
 # echo "Cesi est un mail de test" | mail -s "Sujet de test" fenrir0680@gmail.com
 
 #
-#
+# Setup server
 #
 printf "${GREEN}"
+echo ''
 echo '###########################################'
-echo '#           Configuration serveur         #'
+echo '#               Setup server              #'
 echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
 
-mkdir /home/pi/www
-chown -R pi:www-data /home/pi/www
+if [ ! -d "$HOME/www" ]; then
+  mkdir $HOME/www
+fi
 
-echo "ServerName localhost" >> /etc/apache2/conf-available/servername.conf
-a2enconf servername
-service apache2 reload
-rm /etc/apache2/sites-available/000-default.conf
+sudo chown -R $USER:www-data $HOME/www
+
+sudo mv /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf.old
+touch $HOME/000-default.conf
 echo "
 <VirtualHost *:80>
 
@@ -280,8 +330,8 @@ echo "
     #ServerName www.example.com
 
     ServerAdmin webmaster@localhost
-    DocumentRoot /home/pi/www
-    <Directory /home/pi/www/>
+    DocumentRoot $HOME/www
+    <Directory $HOME/www/>
             Options Indexes FollowSymLinks MultiViews
             AllowOverride All
             Require all granted
@@ -295,49 +345,88 @@ echo "
 
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
-		
+
 </VirtualHost>
 
-# vim: syntax=apache ts=4 sw=4 sts=4 sr noet"  >> /etc/apache2/sites-available/000-default.conf
+vim: syntax=apache ts=4 sw=4 sts=4 sr noet"  >>  $HOME/000-default.conf
+sed -i "s/vim:/# vim:/g" $HOME/000-default.conf
 
-apache2ctl configtest
-service apache2 reload
+sudo mv  $HOME/000-default.conf /etc/apache2/sites-available/000-default.conf
+
+sudo apache2ctl configtest
+sudo service apache2 reload
 
 #
 # Installation de samba
 #
-echo "
-###########################################
-#                 SAMBA                   #
-###########################################"
-apt-get install samba
+printf "${GREEN}"
+echo ''
+echo '###########################################'
+echo '#                  SAMBA                  #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
 
-#Ajouter à la fin du fichier de config
+#!/bin/bash
+
+sudo apt-get install -y samba
+
+#Add to end of config file
+#Add to end of config file
+sudo cp /etc/samba/smb.conf $HOME/smb.conf
 echo "
 [Share]
 comment = Share
-path = /home/pi
+path = $HOME
 writeable = yes
 guest ok = yes
 create mask = 0644
 directory mask = 0755
-force user = pi" >> /etc/samba/smb.conf
+force user = $USER" >> $HOME/smb.conf
 
-# Nettoyage après installation
-echo "
-###########################################
-#               Nettoyage                 #
-###########################################"
-apt-get -y autoremove --purge
-apt-get -y autoclean
+sudo mv $HOME/smb.conf /etc/samba/smb.conf
 
+if [ ! -z ${MY_HOSTNAME+x} ]; then
+    touch $HOME/hostname
+    echo "$MY_HOSTNAME" >> $HOME/hostname
+
+    sudo mv $HOME/hostname /etc/hostname
+fi
+
+sudo service smbd restart
+
+#
+# Cleaning after installation
+#
 printf "${GREEN}"
+echo ''
+echo '###########################################'
+echo '#                Cleaning                 #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
+sudo apt-get -y update
+sudo apt-get -y upgrade
+sudo apt-get -y autoremove --purge
+sudo apt-get -y autoclean
+
+if [ -d "raspbian---installation-serveur" ]; then
+  sudo rm -r raspbian---installation-serveur
+fi
+
+printf "${GREEN}" echo ''
 echo ' _____         __                    '
 echo '/__  /  ____  / /_  ____ ______      '
 echo '  / /  / __ \/ __ \/ __ `/ ___/      '
 echo ' / /__/ /_/ / / / / /_/ / /__        '
-echo '/____/\____/_/ /_/\__,_/\___/  script'
-echo '                                     ....is now installed!'
+echo '/____/\____/_/ /_/\__,_/\___/  web server installation script...is now installed!'
 echo ''
 echo ''
 printf "${NORMAL}"
+
+#
+# Launching the shell
+#
+zsh
