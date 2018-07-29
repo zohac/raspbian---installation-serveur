@@ -40,7 +40,6 @@ printf "${NORMAL}"
 apt-get install -y build-essential
 apt-get install -y apt-transport-https
 apt-get install -y zip
-apt-get install -y git
 apt-get install -y python-pip
 git clone https://github.com/b-ryan/powerline-shell
 cd powerline-shell

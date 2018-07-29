@@ -2,6 +2,15 @@
 
 Installing an Apache2/PHP7.1/MySQL web server on a raspberrypi.
 
+Script tested on linux distribution Raspbian Stretch Lite.
+[Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/)
+
+## Requirements
+
+* GIT: The script requires GIT. [https://git-scm.com/](https://git-scm.com/)
+
+    sudo apt-get install git
+
 ## Installation
 
 ### Git Clone
