@@ -9,7 +9,7 @@ Script tested on linux distribution Raspbian Stretch Lite.
 
 * GIT: The script requires GIT. [https://git-scm.com/](https://git-scm.com/)
 
-    sudo apt-get install git
+        sudo apt-get install git
 
 ## Installation
 
