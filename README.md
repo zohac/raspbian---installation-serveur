@@ -27,6 +27,9 @@ The script installs the following components:
 
 ## Installation
 
+If you want to change your raspberrypi hostname, change the name of the MY_HOSTNAME variable.
+Otherwise comment there with a #.
+
 ### Git Clone
 
 You can also download the script source directly from the Git clone:
