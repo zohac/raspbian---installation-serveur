@@ -11,7 +11,9 @@ echo ''
 echo ''
 printf "${NORMAL}"
 
+#
 # Mise à jour du serveur
+#
 printf "${GREEN}"
 echo '###########################################'
 echo '#         Mise à jour globale !           #'
@@ -24,7 +26,9 @@ apt-get -y update && apt-get -y upgrade
 # Liste des paquets pouvant-être mis à jour
 # apt list --upgradable
 
+#
 # Installation des dépendances
+#
 printf "${GREEN}"
 echo '###########################################'
 echo '#              Installation               #'
@@ -42,7 +46,9 @@ git clone https://github.com/b-ryan/powerline-shell
 cd powerline-shell
 python setup.py install
 
+#
 # Installation apache2
+#
 printf "${GREEN}"
 echo '###########################################'
 echo '#         Installation apache2            #'
@@ -55,7 +61,12 @@ apt-get install -y apache2
 a2enmod rewrite
 service apache2 restart
 
+# Configuration date
+sed -i "s/;date.timezone =/date.timezone = Europe\/Paris/g" /etc/php/7.1/apache2/php.ini
+
+#
 # Installation MySQL
+#
 printf "${GREEN}"
 echo '###########################################'
 echo '#           Installation MySQL            #'
@@ -65,7 +76,9 @@ echo ''
 printf "${NORMAL}"
 apt-get install -y mysql-server
 
+#
 # Installation php7.1
+#
 printf "${GREEN}"
 echo '###########################################'
 echo '#           Installation php7.1           #'
@@ -73,7 +86,7 @@ echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
-echo "deb http://mirrordirector.raspbian.org/raspbian/ buster main contrib non-free rpi">>/etc/apt/sources.list
+echo "deb http://mirrordirector.raspbian.org/raspbian/ buster main contrib non-free rpi" >> /etc/apt/sources.list
 apt-get update -y
 # apt-cache pkgnames | grep php7.1
 apt-get install -y php7.1 php7.1-cli php7.1-common libapache2-mod-php7.1 php7.1-mysql php7.1-fpm php7.1-curl php7.1-gd php7.1-bz2 php7.1-mcrypt php7.1-json php7.1-tidy php7.1-mbstring php7.1-xml php7.1-dev php7.1-soap php-redis php-memcached php7.1-zip php7.1-apcu php7.1-sqlite3
@@ -81,10 +94,18 @@ a2enmod proxy_fcgi setenvif
 a2enconf php7.1-fpm
 systemctl reload apache2
 
-pecl install xdebug
+#
+# Installation de xdebug
+#
+printf "${GREEN}"
+echo '###########################################'
+echo '#           Installation xdebug           #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
 
-# Configuration date
-sed -i "s/;date.timezone =/date.timezone = Europe\/Paris/g" /etc/php/7.1/apache2/php.ini
+pecl install xdebug
 
 # Configuration de Xdebug
 echo "
@@ -112,43 +133,97 @@ xdebug.remote_enable = On
 service apache2 restart
 
 #
+# Shell custom
+#
+printf "${GREEN}"
+echo '###########################################'
+echo '#          Installation de zsh            #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
+apt-get install -y fonts-powerline
+apt-get install -y zsh
+sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+#
 # Composer
 #
-# curl -sS https://getcomposer.org/installer | php
-# mv composer.phar /usr/local/bin/composer.phar
-# echo "
-# alias composer='/usr/local/bin/composer.phar'" >> ~/.bashrc
-# . ~/.bashrc
+printf "${GREEN}"
+echo '###########################################'
+echo '#        Installation de Composer         #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
+curl -sS https://getcomposer.org/installer | php
+mv composer.phar /usr/local/bin/composer.phar
+echo "
+alias composer='/usr/local/bin/composer.phar'" >> ~/.bashrc
+. ~/.zshrc
+
 #
 # PHP-CS-FIXER
 #
-# composer global require friendsofphp/php-cs-fixer
+printf "${GREEN}"
+echo '###########################################'
+echo '#      Installation de PHP-CS-FIXER       #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
+composer global require friendsofphp/php-cs-fixer
+
 #
 # PHP code sniffer
 #
-# composer global require "squizlabs/php_codesniffer=*"
-# echo "
-# alias php-cs-fixer='/home/zohac/.config/composer/vendor/bin/php-cs-fixer'
-# alias phpcs='/home/zohac/.config/composer/vendor/bin/phpcs'
-# alias phpcbf='/home/zohac/.config/composer/vendor/bin/phpcbf'
-# export PATH='$PATH:$HOME/.config/composer/vendor/bin'" >> ~/.bashrc
-# . ~/.bashrc
+printf "${GREEN}"
+echo '###########################################'
+echo '#    Installation de PHP code sniffer     #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
+composer global require "squizlabs/php_codesniffer=*"
+echo "
+alias php-cs-fixer='/home/zohac/.config/composer/vendor/bin/php-cs-fixer'
+alias phpcs='/home/zohac/.config/composer/vendor/bin/phpcs'
+alias phpcbf='/home/zohac/.config/composer/vendor/bin/phpcbf'
+export PATH='$PATH:$HOME/.config/composer/vendor/bin'" >> ~/.zshrc
+. ~/.zshrc
+
 #
 # PHP md
 #
-# wget -c http://static.phpmd.org/php/latest/phpmd.phar
-# mv phpmd.phar /usr/local/bin/phpmd.phar
-# chmod u+x /usr/local/bin/phpmd.phar
-# echo "
-# alias phpmd='/usr/local/bin/phpmd.phar'" >> ~/.bashrc
-# . ~/.bashrc
+printf "${GREEN}"
+echo '###########################################'
+echo '#         Installation de PHP md          #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
+wget -c http://static.phpmd.org/php/latest/phpmd.phar
+mv phpmd.phar /usr/local/bin/phpmd.phar
+chmod u+x /usr/local/bin/phpmd.phar
+echo "
+alias phpmd='/usr/local/bin/phpmd.phar'" >> ~/.zshrc
+. ~/.zshrc
+
 #
 # PHP Copy/Paste Detector (PHPCPD)
 #
-# wget https://phar.phpunit.de/phpcpd.phar
-# chmod +x phpcpd.phar
-# mv phpcpd.phar /usr/local/bin/phpcpd
-# echo "alias phpcpd='/usr/local/bin/phpcpd'" >> ~/.bashrc
+printf "${GREEN}"
+echo '###########################################'
+echo '#             Installation de             #'
+echo '#         PHP Copy/Paste Detector         #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
+wget https://phar.phpunit.de/phpcpd.phar
+chmod +x phpcpd.phar
+mv phpcpd.phar /usr/local/bin/phpcpd
+echo "alias phpcpd='/usr/local/bin/phpcpd'" >> ~/.zshrc
 
 # exemple commande:
 #
@@ -157,26 +232,37 @@ service apache2 restart
 # phpcbf
 # phpmd src html codesize,unusedcode,naming --reportfile phpmd.html --suffixes php,phtml
 
+#
 # Installation de postfix, envoie seulement de mail
-echo "
-###########################################
-#          Installation postfix           #
-###########################################"
-apt-get -y install postfix
-apt-get install -y mailutils
+#
+#printf "${GREEN}"
+#echo '###########################################'
+#echo '#           Installation postfix          #'
+#echo '###########################################'
+#echo ''
+#echo ''
+#printf "${NORMAL}"
+#apt-get -y install postfix
+#apt-get install -y mailutils
 # Site internet
 # home-ubuntu-server
 # /etc/postfix/main.cf
 # sudo dpkg-reconfigure postfix
 # echo "Cesi est un mail de test" | mail -s "Sujet de test" fenrir0680@gmail.com
 
-# Installation de postfix, envoie seulement de mail
-echo "
-###########################################
-#          Configuration serveur          #
-###########################################"
-mkdir /home/zohac/www
-chown -R zohac:www-data /home/zohac/www
+#
+#
+#
+printf "${GREEN}"
+echo '###########################################'
+echo '#           Configuration serveur         #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
+
+mkdir /home/pi/www
+chown -R pi:www-data /home/pi/www
 
 echo "ServerName localhost" >> /etc/apache2/conf-available/servername.conf
 a2enconf servername
@@ -185,31 +271,31 @@ rm /etc/apache2/sites-available/000-default.conf
 echo "
 <VirtualHost *:80>
 
-        # The ServerName directive sets the request scheme, hostname and port that
-        # the server uses to identify itself. This is used when creating
-        # redirection URLs. In the context of virtual hosts, the ServerName
-        # specifies what hostname must appear in the request's Host: header to
-        # match this virtual host. For the default virtual host (this file) this
-        # value is not decisive as it is used as a last resort host regardless.
-        # However, you must set it for any further virtual host explicitly.
-        #ServerName www.example.com
+    # The ServerName directive sets the request scheme, hostname and port that
+    # the server uses to identify itself. This is used when creating
+    # redirection URLs. In the context of virtual hosts, the ServerName
+    # specifies what hostname must appear in the request's Host: header to
+    # match this virtual host. For the default virtual host (this file) this
+    # value is not decisive as it is used as a last resort host regardless.
+    # However, you must set it for any further virtual host explicitly.
+    #ServerName www.example.com
 
-        ServerAdmin webmaster@localhost
-        DocumentRoot /home/zohac/www
-        <Directory /home/zohac/www/>
-                Options Indexes FollowSymLinks MultiViews
-                AllowOverride All
-                Require all granted
-        </Directory>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /home/pi/www
+    <Directory /home/pi/www/>
+            Options Indexes FollowSymLinks MultiViews
+            AllowOverride All
+            Require all granted
+    </Directory>
 
-        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
-        # error, crit, alert, emerg.
-        # It is also possible to configure the loglevel for particular
-        # modules, e.g.
-        #LogLevel info ssl:warn
+    # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+    # error, crit, alert, emerg.
+    # It is also possible to configure the loglevel for particular
+    # modules, e.g.
+    #LogLevel info ssl:warn
 
-        ErrorLog ${APACHE_LOG_DIR}/error.log
-        CustomLog ${APACHE_LOG_DIR}/access.log combined
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
 		
 </VirtualHost>
 
@@ -218,7 +304,9 @@ echo "
 apache2ctl configtest
 service apache2 reload
 
-# Nettoyage après installation
+#
+# Installation de samba
+#
 echo "
 ###########################################
 #                 SAMBA                   #
@@ -229,19 +317,12 @@ apt-get install samba
 echo "
 [Share]
 comment = Share
-path = /home/zohac
+path = /home/pi
 writeable = yes
 guest ok = yes
 create mask = 0644
 directory mask = 0755
-force user = zohac" >> /etc/samba/smb.conf
-
-# Shell custom
-echo "
-###########################################
-#        Installation de zsh              #
-###########################################"
-
+force user = pi" >> /etc/samba/smb.conf
 
 # Nettoyage après installation
 echo "
