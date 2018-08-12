@@ -86,7 +86,7 @@ printf "${NORMAL}"
 sudo apt-get install -y apache2
 # Ajout du module rewrite
 a2enmod rewrite
-service apache2 restart
+sudo service apache2 restart
 
 #
 # Installation MySQL
@@ -122,7 +122,7 @@ a2enconf php7.1-fpm
 # Configuration date
 sed -i "s/;date.timezone =/date.timezone = Europe\/Paris/g" /etc/php/7.1/apache2/php.ini
 
-systemctl reload apache2
+sudo service apache2 restart
 
 #
 # Installation de xdebug
@@ -161,26 +161,7 @@ zend_extension="/usr/lib/php/20160303/xdebug.so"
 xdebug.remote_enable = On
 ' >> /etc/php/7.1/cli/php.ini
 
-service apache2 restart
-
-#
-# Shell custom
-#
-printf "${GREEN}"
-echo ''
-echo '###########################################'
-echo '#            zsh installation             #'
-echo '###########################################'
-echo ''
-echo ''
-printf "${NORMAL}"
-sudo apt-get install -y fonts-powerline
-sudo apt-get install -y zsh
-git clone https://github.com/robbyrussell/oh-my-zsh.git  ~/.oh-my-zsh
-cp ~/.zshrc ~/.zshrc.orig
-cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
-chsh -s /bin/zsh
-sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' ~/.zshrc
+sudo service apache2 restart
 
 #
 # Composer
@@ -198,8 +179,11 @@ php -r "if (hash_file('SHA384', 'composer-setup.php') === '544e09ee996cdf60ece38
 sudo php composer-setup.php --install-dir=/usr/local/bin
 php -r "unlink('composer-setup.php');"
 echo "
-alias composer='/usr/local/bin/composer.phar'" >> ~/.zshrc
-. ~/.zshrc
+#
+# Composer
+#
+alias composer='/usr/local/bin/composer.phar'" >> ~/.bashrc
+source ~/.bashrc
 
 #
 # PHP-CS-FIXER
@@ -214,8 +198,11 @@ echo ''
 printf "${NORMAL}"
 composer global require friendsofphp/php-cs-fixer
 echo "
-alias php-cs-fixer='$HOME/.config/composer/vendor/bin/php-cs-fixer'" >> ~/.zshrc
-. ~/.zshrc
+#
+# PHP-CS-FIXER
+#
+alias php-cs-fixer='$HOME/.config/composer/vendor/bin/php-cs-fixer'" >> ~/.bashrc
+source ~/.bashrc
 
 #
 # PHP code sniffer
@@ -230,10 +217,12 @@ echo ''
 printf "${NORMAL}"
 composer global require "squizlabs/php_codesniffer=*"
 echo "
+#
+# PHP code sniffer
+#
 alias phpcs='$HOME/.config/composer/vendor/bin/phpcs'
-alias phpcbf='$HOME/.config/composer/vendor/bin/phpcbf'
-export PATH='$HOME/.config/composer/vendor/bin'" >> ~/.zshrc
-. ~/.zshrc
+alias phpcbf='$HOME/.config/composer/vendor/bin/phpcbf'" >> ~/.bashrc
+source ~/.bashrc
 
 #
 # PHP Mess Detector
@@ -250,8 +239,11 @@ wget -c http://static.phpmd.org/php/latest/phpmd.phar
 chmod u+x phpmd.phar
 sudo mv phpmd.phar /usr/local/bin/phpmd.phar
 echo "
-alias phpmd='/usr/local/bin/phpmd.phar'" >> ~/.zshrc
-. ~/.zshrc
+#
+# PHP Mess Detector
+#
+alias phpmd='/usr/local/bin/phpmd.phar'" >> ~/.bashrc
+source ~/.bashrc
 
 #
 # PHP Copy/Paste Detector (PHPCPD)
@@ -269,7 +261,11 @@ wget https://phar.phpunit.de/phpcpd.phar
 chmod +x phpcpd.phar
 sudo mv phpcpd.phar /usr/local/bin/phpcpd
 echo "
-alias phpcpd='/usr/local/bin/phpcpd'" >> ~/.zshrc
+#
+# PHP Copy/Paste Detector  
+#
+alias phpcpd='/usr/local/bin/phpcpd'" >> ~/.bashrc
+source ~/.bashrc
 
 # example of use:
 #
@@ -397,6 +393,83 @@ fi
 sudo service smbd restart
 
 #
+# Installation of Blackfire
+#
+printf "${GREEN}"
+echo ''
+echo '###########################################'
+echo '#         BlackFire Installation          #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
+wget -q -O - https://packagecloud.io/gpg.key | sudo apt-key add -
+echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list
+sudo apt-get update -y
+sudo apt-get install -y blackfire-agent
+# If is the first install :
+# sudo blackfire-agent -register
+# 
+# ClientID
+# ClientToken
+#
+# sudo /etc/init.d/blackfire-agent restart
+#
+
+sudo apt-get install -y blackfire-agent
+# blackfire config
+# ClientID
+# ClientToken
+
+sudo apt-get install -y blackfire-php
+
+#
+# Shell custom
+#
+printf "${GREEN}"
+echo ''
+echo '###########################################'
+echo '#            zsh installation             #'
+echo '###########################################'
+echo ''
+echo ''
+printf "${NORMAL}"
+sudo apt-get install -y fonts-powerline
+sudo apt-get install -y zsh
+git clone https://github.com/robbyrussell/oh-my-zsh.git  ~/.oh-my-zsh
+cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' ~/.zshrc
+chsh -s /bin/zsh
+
+echo "
+#
+# Composer  
+#
+alias composer='/usr/local/bin/composer.phar'
+
+#
+# PHP-CS-FIXER
+#
+alias php-cs-fixer='$HOME/.config/composer/vendor/bin/php-cs-fixer'
+
+#
+# PHP code sniffer
+#
+alias phpcs='$HOME/.config/composer/vendor/bin/phpcs'
+alias phpcbf='$HOME/.config/composer/vendor/bin/phpcbf'
+
+#
+# PHP Mess Detector
+#
+alias phpmd='/usr/local/bin/phpmd.phar'
+
+#
+# PHP Copy/Paste Detector  
+#
+alias phpcpd='/usr/local/bin/phpcpd'" >> ~/.zshrc
+
+source ~/.zshrc
+#
 # Cleaning after installation
 #
 printf "${GREEN}"
@@ -426,7 +499,26 @@ echo ''
 echo ''
 printf "${NORMAL}"
 
-#
-# Launching the shell
-#
-zsh
+while :
+do
+
+    echo "You should restart [Y/n] ?"
+    read REP
+
+    case $REP in
+        N|n)
+            echo "Remember to restart !"
+            break
+        ;;
+        Y|y)
+            #Redémarrage
+            sudo reboot
+            break
+        ;;
+        *)
+            echo "Error, you had to answer yes[Y] or no[n]."
+        ;;
+    esac
+done
+
+exit 0;

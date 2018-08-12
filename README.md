@@ -1,4 +1,4 @@
-# Installation d'un serveur web Apache2/PHP7.1
+# Installing an Apache2/PHP7.1 web server
 
 Installing Apache2/PHP7.1/MySQL for a development web server on a raspberrypi.
 
@@ -17,6 +17,7 @@ The script installs the following components:
 * PHP code sniffer
 * PHP md
 * PHP Copy/Paste Detector
+* BlackFire
 * samba
 
 ## Requirements
@@ -39,6 +40,26 @@ You can also download the script source directly from the Git clone:
 ### Run the script
 
     bash raspbian---installation-serveur/install.sh
+
+## After Reboot - Configure BlackFire
+
+### Installing the Agent
+
+[BlackFire.io](https://blackfire.io/docs/up-and-running/installation)
+
+1. Configure your Blackfire credentials:
+
+        sudo blackfire-agent -register
+
+2. After registering the agent, and whenever you modify its configuration, you have to restart its service:
+
+        sudo /etc/init.d/blackfire-agent restart
+
+### Installing the Blackfire CLI tool
+
+* Run the config command to initialize the client:
+
+        blackfire config
 
 ## Issues
 
