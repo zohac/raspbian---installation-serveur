@@ -112,7 +112,11 @@ echo '###########################################'
 echo ''
 echo ''
 printf "${NORMAL}"
-echo "deb http://mirrordirector.raspbian.org/raspbian/ buster main contrib non-free rpi" >> /etc/apt/sources.list
+sudo cp /etc/apt/sources.list /etc/apt/sources.list.old
+cp /etc/apt/sources.list $HOME/sources.list
+sudo rm /etc/apt/sources.list
+echo "deb http://mirrordirector.raspbian.org/raspbian/ buster main contrib non-free rpi" >> $HOME/sources.list
+sudo mv $HOME/sources.list /etc/apt/sources.list
 sudo apt-get update -y
 # apt-cache pkgnames | grep php7.1
 sudo apt-get install -y php7.1 php7.1-cli php7.1-common libapache2-mod-php7.1 php7.1-mysql php7.1-fpm php7.1-curl php7.1-gd php7.1-bz2 php7.1-mcrypt php7.1-json php7.1-tidy php7.1-mbstring php7.1-xml php7.1-dev php7.1-soap php-redis php-memcached php7.1-zip php7.1-apcu php7.1-sqlite3
@@ -383,11 +387,15 @@ force user = $USER" >> $HOME/smb.conf
 
 sudo mv $HOME/smb.conf /etc/samba/smb.conf
 
+#
+# Change the hostname
+#
 if [ ! -z ${MY_HOSTNAME+x} ]; then
     touch $HOME/hostname
     echo "$MY_HOSTNAME" >> $HOME/hostname
 
     sudo mv $HOME/hostname /etc/hostname
+    sudo sed -i "s/127.0.1.1       raspberry/127.0.1.1       $MY_HOSTNAME/g" /etc/hosts
 fi
 
 sudo service smbd restart
